@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { createNoise2D } from 'simplex-noise';
+import { mulberry32, WORLD_SEED } from '../utils/random';
 
-const vegNoise = createNoise2D();
+const vegNoise = createNoise2D(mulberry32(WORLD_SEED + 100));
 
 const SHARED_TRUNK_MAT = new THREE.MeshStandardMaterial({ color: 0x4a3020, roughness: 0.95 });
 const SHARED_BROAD_TRUNK_MAT = new THREE.MeshStandardMaterial({ color: 0x5a3828, roughness: 0.92 });

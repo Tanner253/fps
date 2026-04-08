@@ -12,6 +12,7 @@ import { AudioManager } from '../audio/AudioManager';
 import { Sky } from './Sky';
 import { NetworkManager } from '../network/NetworkManager';
 import { RemotePlayerManager } from '../multiplayer/RemotePlayerManager';
+import { withSeededRandom, WORLD_SEED } from '../utils/random';
 
 export class Game {
   renderer!: THREE.WebGLRenderer;
@@ -38,6 +39,7 @@ export class Game {
   private running = false;
   private aiEnabled = true;
   private isDead = false;
+  private networkTimer = 0;
 
   async init() {
     this.initRenderer();
@@ -102,7 +104,7 @@ export class Game {
   private async buildWorld() {
     this.sky = new Sky(this.scene);
     this.world = new World(this.scene, this.physics);
-    this.world.generate();
+    withSeededRandom(WORLD_SEED + 200, () => this.world.generate());
 
     this.enemies.setTerrainInfo((x, z) => this.world.getHeight(x, z), WATER_LEVEL);
 
@@ -213,7 +215,9 @@ export class Game {
       this.weapons.update(dt, this.player.velocity, this.player.isGrounded, this.player.isSprinting);
     }
 
-    if (this.network.connected) {
+    this.networkTimer += dt;
+    if (this.network.connected && this.networkTimer >= 0.05) {
+      this.networkTimer = 0;
       const p = this.player.position;
       this.network.sendState([p.x, p.y, p.z], [this.player.pitch, this.player.yaw]);
     }

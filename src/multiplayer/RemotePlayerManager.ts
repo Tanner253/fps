@@ -33,6 +33,7 @@ export class RemotePlayerManager {
 
     const infoTag = this.buildInfoTag(name, 100);
     infoTag.name = 'infoTag';
+    infoTag.raycast = () => {};
     mesh.add(infoTag);
 
     this.players.set(id, {

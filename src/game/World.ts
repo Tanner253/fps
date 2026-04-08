@@ -3,6 +3,7 @@ import { createNoise2D } from 'simplex-noise';
 import { PhysicsWorld } from '../physics/PhysicsWorld';
 import * as CANNON from 'cannon-es';
 import { createPineTree, createBroadleafTree, createBush, createRock, createGrass } from './Vegetation';
+import { mulberry32, WORLD_SEED } from '../utils/random';
 
 export const TERRAIN_SIZE = 400;
 const TERRAIN_SEGMENTS = 200;
@@ -13,8 +14,8 @@ export class World {
   colliderGroup: THREE.Group;
   decorGroup: THREE.Group;
 
-  private noise = createNoise2D();
-  private warpNoise = createNoise2D();
+  private noise = createNoise2D(mulberry32(WORLD_SEED));
+  private warpNoise = createNoise2D(mulberry32(WORLD_SEED + 1));
 
   constructor(
     private scene: THREE.Scene,
