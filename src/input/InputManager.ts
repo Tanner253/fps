@@ -64,6 +64,19 @@ export class InputManager {
     }
   }
 
+  simulateKeyDown(code: string) {
+    if (!this.keys.get(code)) {
+      this.justPressedKeys.add(code);
+    }
+    this.keys.set(code, true);
+  }
+
+  simulateKeyUp(code: string) {
+    this.keys.set(code, false);
+    this.justPressedKeys.delete(code);
+    this.justPressedConsumed.delete(code);
+  }
+
   isPressed(code: string): boolean {
     return this.keys.get(code) ?? false;
   }

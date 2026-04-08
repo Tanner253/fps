@@ -3,7 +3,7 @@ import { InputManager } from './InputManager';
 const JOYSTICK_SIZE = 130;
 const KNOB_SIZE = 56;
 const BTN_SIZE = 64;
-const LOOK_SENSITIVITY = 0.4;
+const LOOK_SENSITIVITY = 3.0;
 
 export class TouchControls {
   private container!: HTMLDivElement;
@@ -61,20 +61,21 @@ export class TouchControls {
 
     const jumpBtn = this.makeButton('JUMP', '#3b82f6', BTN_SIZE);
     Object.assign(jumpBtn.style, { bottom: '100px', right: '115px' });
-    this.addButtonListeners(jumpBtn, () => { this.input.keys.set('Space', true); }, () => { this.input.keys.set('Space', false); });
+    this.addButtonListeners(jumpBtn, () => { this.input.simulateKeyDown('Space'); }, () => { this.input.simulateKeyUp('Space'); });
 
     const reloadBtn = this.makeButton('R', '#f59e0b', 50);
     Object.assign(reloadBtn.style, { bottom: '190px', right: '30px' });
     this.addButtonListeners(reloadBtn, () => {
-      this.input.keys.set('KeyR', true);
-      setTimeout(() => this.input.keys.set('KeyR', false), 100);
+      this.input.simulateKeyDown('KeyR');
+      setTimeout(() => this.input.simulateKeyUp('KeyR'), 100);
     });
 
     const sprintBtn = this.makeButton('RUN', '#22c55e', 50);
     Object.assign(sprintBtn.style, { bottom: '190px', left: '55px' });
     this.addButtonListeners(sprintBtn, () => {
       this.sprintActive = !this.sprintActive;
-      this.input.keys.set('ShiftLeft', this.sprintActive);
+      if (this.sprintActive) this.input.simulateKeyDown('ShiftLeft');
+      else this.input.simulateKeyUp('ShiftLeft');
       sprintBtn.style.background = this.sprintActive ? '#22c55e' : 'rgba(34,197,94,0.3)';
     });
 
@@ -84,8 +85,8 @@ export class TouchControls {
     this.addButtonListeners(swapBtn, () => {
       weapIdx = weapIdx === 0 ? 1 : 0;
       const key = weapIdx === 0 ? 'Digit1' : 'Digit2';
-      this.input.keys.set(key, true);
-      setTimeout(() => this.input.keys.set(key, false), 100);
+      this.input.simulateKeyDown(key);
+      setTimeout(() => this.input.simulateKeyUp(key), 100);
     });
 
     const adsBtn = this.makeButton('ADS', '#6366f1', 50);
