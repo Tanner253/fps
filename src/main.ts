@@ -39,12 +39,13 @@ async function boot() {
 
   loadingScreen.classList.add('hidden');
   startScreen.style.display = 'flex';
-  nameInput.value = randomName();
+  nameInput.value = localStorage.getItem('dogtag_callsign') || randomName();
   nameInput.focus();
   nameInput.select();
 
   async function launch() {
     const name = nameInput.value.trim() || randomName();
+    localStorage.setItem('dogtag_callsign', name);
     deployBtn.disabled = true;
     statusText.textContent = 'CONNECTING...';
 

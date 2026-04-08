@@ -101,6 +101,37 @@ export class FXSystem {
     this.particles.push({ mesh: particles, velocities, life: 0.4, maxLife: 0.4, gravity: 15 });
   }
 
+  spawnRemoteTracer(from: THREE.Vector3, dir: THREE.Vector3) {
+    const to = from.clone().addScaledVector(dir, 80);
+    const len = 80;
+    const geo = new THREE.CylinderGeometry(0.008, 0.008, len, 3);
+    geo.rotateX(Math.PI / 2);
+    geo.translate(0, 0, -len / 2);
+
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0xffcc33, transparent: true, opacity: 0.4,
+      blending: THREE.AdditiveBlending,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.copy(from);
+    mesh.lookAt(to);
+    this.scene.add(mesh);
+
+    const startTime = performance.now();
+    const animate = () => {
+      const elapsed = (performance.now() - startTime) / 1000;
+      if (elapsed > 0.15) {
+        this.scene.remove(mesh);
+        geo.dispose();
+        mat.dispose();
+        return;
+      }
+      mat.opacity = 0.4 * (1 - elapsed / 0.15);
+      requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }
+
   addScreenShake(amount: number) {
     this.screenShake = Math.min(this.screenShake + amount, 1);
   }

@@ -27,6 +27,26 @@ let nextId = 1;
 const RESPAWN_DELAY = 3000;
 const TICK_RATE = 50;
 
+const NUM_AMMO_BOXES = 20;
+const BOX_RESPAWN_TIME = 30000;
+const ammoBoxes = new Map();
+
+function seededRng(seed) {
+  let s = seed | 0;
+  return () => { s = (s * 16807 + 0) % 2147483647; return (s - 1) / 2147483646; };
+}
+
+function initAmmoBoxes() {
+  const rng = seededRng(42069 + 500);
+  for (let i = 0; i < NUM_AMMO_BOXES; i++) {
+    const angle = rng() * Math.PI * 2;
+    const dist = 30 + rng() * 100;
+    const id = `box_${i}`;
+    ammoBoxes.set(id, { id, pos: [Math.cos(angle) * dist, 25, Math.sin(angle) * dist], active: true });
+  }
+}
+initAmmoBoxes();
+
 function send(ws, data) {
   if (ws.readyState === 1) ws.send(JSON.stringify(data));
 }
@@ -85,6 +105,11 @@ wss.on('connection', (ws) => {
         }
       }
 
+      const activeBoxes = [];
+      for (const b of ammoBoxes.values()) {
+        if (b.active) activeBoxes.push({ id: b.id, pos: b.pos });
+      }
+
       send(ws, {
         type: 'welcome',
         id,
@@ -92,6 +117,7 @@ wss.on('connection', (ws) => {
         players: others,
         leaderboard: leaderboard(),
         aiMode: players.size <= 1,
+        ammoBoxes: activeBoxes,
       });
 
       broadcast({ type: 'joined', id, name: player.name, pos }, id);
@@ -107,6 +133,25 @@ wss.on('connection', (ws) => {
     if (msg.type === 'state') {
       me.pos = msg.pos;
       me.rot = msg.rot;
+    }
+
+    if (msg.type === 'pickup') {
+      const box = ammoBoxes.get(msg.boxId);
+      if (box && box.active) {
+        box.active = false;
+        send(ws, { type: 'pickupConfirm', boxId: msg.boxId, ammo: 30 });
+        broadcast({ type: 'boxPickup', boxId: msg.boxId }, id);
+        setTimeout(() => {
+          box.active = true;
+          broadcast({ type: 'boxRespawn', boxId: box.id, pos: box.pos });
+        }, BOX_RESPAWN_TIME);
+      }
+      return;
+    }
+
+    if (msg.type === 'shot') {
+      broadcast({ type: 'playerShot', id, pos: me.pos, rot: me.rot }, id);
+      return;
     }
 
     if (msg.type === 'hit') {

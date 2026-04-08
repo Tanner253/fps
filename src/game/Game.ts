@@ -13,6 +13,8 @@ import { Sky } from './Sky';
 import { NetworkManager } from '../network/NetworkManager';
 import { RemotePlayerManager } from '../multiplayer/RemotePlayerManager';
 import { withSeededRandom, WORLD_SEED } from '../utils/random';
+import { TouchControls } from '../input/TouchControls';
+import { AmmoPickupManager } from '../pickups/AmmoPickupManager';
 
 export class Game {
   renderer!: THREE.WebGLRenderer;
@@ -35,6 +37,8 @@ export class Game {
   audio!: AudioManager;
   network!: NetworkManager;
   remotePlayers!: RemotePlayerManager;
+  touch!: TouchControls;
+  ammoBoxes!: AmmoPickupManager;
 
   private running = false;
   private aiEnabled = true;
@@ -98,6 +102,8 @@ export class Game {
     this.hud = new HUD();
     this.network = new NetworkManager();
     this.remotePlayers = new RemotePlayerManager(this.scene);
+    this.ammoBoxes = new AmmoPickupManager(this.scene);
+    this.touch = new TouchControls(this.input);
     this.setupNetworkHandlers();
   }
 
@@ -166,6 +172,33 @@ export class Game {
       this.hud.updateLeaderboard(msg.entries, this.network.id);
     });
 
+    this.network.on('pickupConfirm', (msg: any) => {
+      this.ammoBoxes.removeBox(msg.boxId);
+      this.weapons.activeWeapon.reserveAmmo += msg.ammo;
+      this.audio.playImpact();
+    });
+
+    this.network.on('boxPickup', (msg: any) => {
+      this.ammoBoxes.removeBox(msg.boxId);
+    });
+
+    this.network.on('boxRespawn', (msg: any) => {
+      this.ammoBoxes.respawnBox(msg.boxId);
+    });
+
+    this.network.on('playerShot', (msg: any) => {
+      this.remotePlayers.showMuzzleFlash(msg.id);
+      if (msg.pos && msg.rot) {
+        const from = new THREE.Vector3(msg.pos[0], msg.pos[1] + 1.5, msg.pos[2]);
+        const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(
+          new THREE.Vector3(0, 1, 0), msg.rot[1],
+        );
+        dir.y = Math.sin(msg.rot[0] || 0);
+        dir.normalize();
+        this.fx.spawnRemoteTracer(from, dir);
+      }
+    });
+
     this.network.on('disconnected', () => {
       this.aiEnabled = true;
     });
@@ -181,6 +214,13 @@ export class Game {
 
       for (const [id, data] of Object.entries(welcome.players as Record<string, any>)) {
         this.remotePlayers.addPlayer(id, data.name, data.pos);
+      }
+
+      if (welcome.ammoBoxes) {
+        this.ammoBoxes.initBoxes(
+          welcome.ammoBoxes,
+          (x: number, z: number) => this.world.getHeight(x, z),
+        );
       }
 
       this.hud.updateLeaderboard(welcome.leaderboard, this.network.id);
@@ -228,6 +268,13 @@ export class Game {
       this.enemies.update(dt, this.player.position);
     }
 
+    if (!this.isDead) {
+      const pickedBox = this.ammoBoxes.update(dt, this.player.position);
+      if (pickedBox && this.network.connected) {
+        this.network.sendPickup(pickedBox);
+      }
+    }
+
     if (!this.isDead && this.input.mouseDown && this.weapons.canFire()) {
       const weapon = this.weapons.activeWeapon;
       const spread = weapon.getSpread();
@@ -240,6 +287,7 @@ export class Game {
       this.projectiles.fire(this.camera.position.clone(), dir, weapon.config);
       this.weapons.fire();
       this.fx.addScreenShake(0.15);
+      if (this.network.connected) this.network.sendShot();
     }
 
     const hits = this.projectiles.update(

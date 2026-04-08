@@ -56,6 +56,14 @@ export class NetworkManager {
     this.send({ type: 'hit', targetId, damage });
   }
 
+  sendShot() {
+    this.send({ type: 'shot' });
+  }
+
+  sendPickup(boxId: string) {
+    this.send({ type: 'pickup', boxId });
+  }
+
   private send(data: any) {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(data));

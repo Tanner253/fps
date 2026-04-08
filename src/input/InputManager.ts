@@ -11,6 +11,10 @@ export class InputManager {
   rightMouseDown = false;
   private locked = false;
 
+  virtualMoveX = 0;
+  virtualMoveZ = 0;
+  isMobile = 'ontouchstart' in window && navigator.maxTouchPoints > 0;
+
   constructor() {
     window.addEventListener('keydown', (e) => {
       if (!this.keys.get(e.code)) {
@@ -53,7 +57,11 @@ export class InputManager {
   }
 
   lock() {
-    document.body.requestPointerLock();
+    if (this.isMobile) {
+      this.locked = true;
+    } else {
+      document.body.requestPointerLock();
+    }
   }
 
   isPressed(code: string): boolean {
@@ -74,8 +82,10 @@ export class InputManager {
     if (this.isPressed('KeyS') || this.isPressed('ArrowDown')) z += 1;
     if (this.isPressed('KeyA') || this.isPressed('ArrowLeft')) x -= 1;
     if (this.isPressed('KeyD') || this.isPressed('ArrowRight')) x += 1;
+    x += this.virtualMoveX;
+    z += this.virtualMoveZ;
     const len = Math.sqrt(x * x + z * z);
-    if (len > 0) { x /= len; z /= len; }
+    if (len > 1) { x /= len; z /= len; }
     return { x, z };
   }
 
