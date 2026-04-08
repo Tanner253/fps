@@ -50,10 +50,10 @@ export class RemotePlayerManager {
     const p = this.players.get(id);
     if (!p) return;
     this.group.remove(p.mesh);
-    p.mesh.traverse((c) => {
+    p.mesh.traverse((c: THREE.Object3D) => {
       if (c instanceof THREE.Mesh) {
         c.geometry?.dispose();
-        if (Array.isArray(c.material)) c.material.forEach((m) => m.dispose());
+        if (Array.isArray(c.material)) c.material.forEach((m: THREE.Material) => m.dispose());
         else c.material?.dispose();
       }
       if (c instanceof THREE.Sprite) {

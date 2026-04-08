@@ -237,7 +237,7 @@ export class EnemyManager {
 
     if (enemy.hitFlash > 0) {
       enemy.hitFlash -= dt;
-      enemy.mesh.traverse((child) => {
+      enemy.mesh.traverse((child: THREE.Object3D) => {
         if (child instanceof THREE.Mesh && child.name !== 'healthBar') {
           const mat = child.material as THREE.MeshStandardMaterial;
           if (mat.emissive) mat.emissive.setHex(enemy.hitFlash > 0 ? 0xff3333 : 0x000000);
