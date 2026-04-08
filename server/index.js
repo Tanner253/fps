@@ -11,7 +11,7 @@ const httpServer = createServer(app);
 const wss = new WebSocketServer({ noServer: true });
 
 app.use(express.static(join(__dirname, '../dist')));
-app.get('*', (_req, res) => res.sendFile(join(__dirname, '../dist/index.html')));
+app.get('{*path}', (_req, res) => res.sendFile(join(__dirname, '../dist/index.html')));
 
 httpServer.on('upgrade', (req, socket, head) => {
   const url = new URL(req.url || '', `http://${req.headers.host}`);
