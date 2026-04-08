@@ -72,8 +72,24 @@
       letter-spacing: 0.12em; height: 1.2em;
     }
 
+    .game-concept {
+      margin-top: 1.6rem; max-width: 340px; text-align: center;
+      padding: 14px 18px; border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(247,201,72,0.12);
+    }
+    .game-concept h3 {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.25em;
+      color: #f7c948; margin-bottom: 8px; text-transform: uppercase;
+    }
+    .game-concept p {
+      font-size: 0.72rem; color: #777; line-height: 1.7; margin-bottom: 6px;
+    }
+    .game-concept .highlight { color: #f7c948; font-weight: 600; }
+    .game-concept .warn { color: #ef4444; font-weight: 600; }
+
     .controls {
-      margin-top: 1.8rem; text-align: left; font-size: 0.72rem;
+      margin-top: 1.2rem; text-align: left; font-size: 0.72rem;
       color: #444; line-height: 1.9;
     }
     .controls span { color: #f7c948; font-weight: 600; }
@@ -98,6 +114,13 @@
     <input type="text" id="player-name" placeholder="CALLSIGN" maxlength="16" autocomplete="off" spellcheck="false" />
     <button id="deploy-btn">DEPLOY</button>
     <div id="status-text"></div>
+    <div class="game-concept">
+      <h3>How It Works</h3>
+      <p>Pay to enter a server and receive a <span class="highlight">DOGTAG</span> worth your entry fee.</p>
+      <p>Kill other players to loot their dogtags. <span class="highlight">Extract</span> to cash out everything you're carrying.</p>
+      <p>Any dogtags left on a server for more than <span class="warn">30 minutes</span> are claimed by the house.</p>
+      <p style="color:#555;font-size:0.65rem;margin-top:4px;">Open world. High stakes. Get in, get tags, get out.</p>
+    </div>
     <div class="controls">
       <span>WASD</span> — Move &nbsp;&nbsp; <span>SHIFT</span> — Sprint &nbsp;&nbsp; <span>SPACE</span> — Jump<br/>
       <span>MOUSE</span> — Aim &nbsp;&nbsp; <span>LMB</span> — Fire &nbsp;&nbsp; <span>RMB</span> — ADS<br/>
