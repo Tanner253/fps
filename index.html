@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOGTAG — Multiplayer FPS</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    canvas { display: block; }
+
+    #loading-screen {
+      position: fixed; inset: 0; z-index: 1000;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif; color: #e0e0e0;
+      transition: opacity 0.6s ease;
+    }
+    #loading-screen.hidden { opacity: 0; pointer-events: none; }
+    #loading-screen h1 {
+      font-size: 4rem; font-weight: 900; letter-spacing: 0.3em;
+      text-transform: uppercase; margin-bottom: 2rem;
+      background: linear-gradient(90deg, #ff6b35, #f7c948, #ff6b35);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .loading-bar-container {
+      width: 300px; height: 4px; background: rgba(255,255,255,0.1);
+      border-radius: 2px; overflow: hidden;
+    }
+    .loading-bar {
+      width: 0%; height: 100%; background: linear-gradient(90deg, #ff6b35, #f7c948);
+      border-radius: 2px; transition: width 0.3s ease;
+    }
+    #loading-text { margin-top: 1rem; font-size: 0.85rem; color: #888; letter-spacing: 0.1em; }
+
+    #start-screen {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.88);
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif; color: #e0e0e0;
+    }
+    #start-screen h2 {
+      font-size: 1.2rem; font-weight: 300; letter-spacing: 0.25em;
+      color: #888; margin-bottom: 1.2rem;
+    }
+
+    #player-name {
+      width: 260px; padding: 10px 16px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; color: #fff; font-size: 1.1rem;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      text-align: center; letter-spacing: 0.08em;
+      outline: none; transition: border-color 0.2s;
+    }
+    #player-name:focus { border-color: #f7c948; }
+    #player-name::placeholder { color: #555; }
+
+    #deploy-btn {
+      margin-top: 1rem; padding: 10px 40px;
+      background: linear-gradient(90deg, #ff6b35, #f7c948);
+      border: none; border-radius: 6px; color: #000;
+      font-size: 0.95rem; font-weight: 700; letter-spacing: 0.2em;
+      cursor: pointer; text-transform: uppercase;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    #deploy-btn:hover { opacity: 0.9; transform: scale(1.03); }
+    #deploy-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+    #status-text {
+      margin-top: 0.8rem; font-size: 0.75rem; color: #666;
+      letter-spacing: 0.12em; height: 1.2em;
+    }
+
+    .controls {
+      margin-top: 1.8rem; text-align: left; font-size: 0.72rem;
+      color: #444; line-height: 1.9;
+    }
+    .controls span { color: #f7c948; font-weight: 600; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading-screen">
+    <h1>DOGTAG</h1>
+    <div class="loading-bar-container">
+      <div class="loading-bar" id="loading-bar"></div>
+    </div>
+    <div id="loading-text">INITIALIZING...</div>
+  </div>
+
+  <div id="start-screen">
+    <h2>ENTER YOUR CALLSIGN</h2>
+    <input type="text" id="player-name" placeholder="CALLSIGN" maxlength="16" autocomplete="off" spellcheck="false" />
+    <button id="deploy-btn">DEPLOY</button>
+    <div id="status-text"></div>
+    <div class="controls">
+      <span>WASD</span> — Move &nbsp;&nbsp; <span>SHIFT</span> — Sprint &nbsp;&nbsp; <span>SPACE</span> — Jump<br/>
+      <span>MOUSE</span> — Aim &nbsp;&nbsp; <span>LMB</span> — Fire &nbsp;&nbsp; <span>RMB</span> — ADS<br/>
+      <span>R</span> — Reload &nbsp;&nbsp; <span>1-2</span> — Switch Weapon
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
