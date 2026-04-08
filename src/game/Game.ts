@@ -234,6 +234,7 @@ export class Game {
   start() {
     this.running = true;
     this.input.lock();
+    this.touch.enable();
     this.clock.start();
 
     if (this.aiEnabled) {

@@ -17,6 +17,7 @@ export class TouchControls {
   private sprintActive = false;
 
   readonly active: boolean;
+  private enabled = false;
 
   constructor(private input: InputManager) {
     this.active = input.isMobile;
@@ -25,12 +26,18 @@ export class TouchControls {
     this.bindEvents();
   }
 
+  enable() {
+    this.enabled = true;
+    if (this.container) this.container.style.display = '';
+  }
+
   private buildUI() {
     this.container = document.createElement('div');
     this.container.id = 'touch-controls';
     Object.assign(this.container.style, {
       position: 'fixed', inset: '0', zIndex: '90',
       pointerEvents: 'none', touchAction: 'none',
+      display: 'none',
     });
 
     this.joystickBase = this.circle(JOYSTICK_SIZE, 'rgba(255,255,255,0.1)', '2px solid rgba(255,255,255,0.2)');
@@ -92,6 +99,7 @@ export class TouchControls {
     const leftZone = 0.35;
 
     window.addEventListener('touchstart', (e) => {
+      if (!this.enabled) return;
       for (let i = 0; i < e.changedTouches.length; i++) {
         const t = e.changedTouches[i];
         const xRatio = t.clientX / window.innerWidth;
@@ -114,6 +122,7 @@ export class TouchControls {
     }, { passive: false });
 
     window.addEventListener('touchmove', (e) => {
+      if (!this.enabled) return;
       for (let i = 0; i < e.changedTouches.length; i++) {
         const t = e.changedTouches[i];
 
@@ -148,6 +157,7 @@ export class TouchControls {
     }, { passive: false });
 
     const endTouch = (e: TouchEvent) => {
+      if (!this.enabled) return;
       for (let i = 0; i < e.changedTouches.length; i++) {
         const t = e.changedTouches[i];
         if (t.identifier === this.joystickTouchId) {
